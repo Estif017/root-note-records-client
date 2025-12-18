@@ -39,12 +39,12 @@ class TemplateBuilder
                      const parent = document.getElementById(target);
                      parent.appendChild(element);
 
-                    if(target == "errors" || target == "messages")
-                    {
-                        setTimeout(() => {
-                            try { parent.removeChild(element); } catch(e) {}
-                        }, 3000);
-                    }
+                     if(target == "errors")
+                     {
+                         setTimeout(() => {
+                             parent.removeChild(element);
+                         }, 3000);
+                     }
                  }
                  catch(e)
                  {

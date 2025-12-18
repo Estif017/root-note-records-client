@@ -79,6 +79,8 @@ main > .content-form
     display: flex;
     flex-direction: column;
     padding-right: 20px;
+    /* shift content slightly to the right (approx. 4 tab stops) */
+    margin-left: 40px;
 }
 
 main > .content-form .cart-header,
@@ -111,6 +113,102 @@ main > .content-form .cart-item
 {
     margin: 10px 0;
     color: maroon;
+}
+
+/* Cart page item layout */
+.content-form .cart-item {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    align-items: flex-start;
+    border-bottom: 1px solid #eee;
+}
+
+.content-form .cart-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.content-form .cart-item h4,
+.content-form .cart-item p {
+    margin: 0 0 6px 0;
+}
+
+.content-form .cart-item .price {
+    color: #9d4edd;
+    font-weight: 700;
+}
+
+.content-form .cart-item .quantity-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* details column */
+.content-form .cart-item .details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px;
+    max-width: 60%;
+}
+
+.content-form .cart-item .details h4 {
+    font-size: 1.2rem;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.content-form .cart-item .details .description {
+    color: #333;
+    margin: 0;
+}
+
+.content-form .cart-item .details .quantity-controls {
+    margin-top: 6px;
+}
+
+.content-form .cart-item .quantity-controls .remove-btn {
+    margin-left: 8px;
+    padding: 6px 10px;
+}
+
+/* make controls align right on narrow screens too */
+@media (max-width: 800px) {
+    .content-form .cart-item {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .content-form .cart-item .quantity-controls {
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+}
+
+.content-form .cart-item .quantity-controls .btn {
+    min-width: 36px;
+    height: 30px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-form .cart-item .quantity-controls span {
+    min-width: 48px;
+    text-align: center;
+}
+
+.content-form .cart-total {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
 }
 
 .product
