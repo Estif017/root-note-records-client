@@ -1,202 +1,184 @@
 let cartService;
 
 class ShoppingCartService {
+	cart = {
+		items: [],
+		total: 0,
+	};
 
-    cart = {
-        items:[],
-        total:0
-    };
+	addToCart(productId) {
+		const url = `${config.baseUrl}/cart/products/${productId}`;
+		// const headers = userService.getHeaders();
 
-    addToCart(productId)
-    {
-        const url = `${config.baseUrl}/cart/products/${productId}`;
-        // const headers = userService.getHeaders();
+		axios
+			.post(url, {}) // ,{headers})
+			.then((response) => {
+				this.setCart(response.data);
 
-        axios.post(url, {})// ,{headers})
-            .then(response => {
-                this.setCart(response.data)
+				this.updateCartDisplay();
 
-                this.updateCartDisplay()
+				templateBuilder.append(
+					'message',
+					{ message: 'Added to cart successfully.' },
+					'messages'
+				);
+			})
+			.catch((error) => {
+				const data = {
+					error: 'Add to cart failed.',
+				};
 
-            })
-            .catch(error => {
+				templateBuilder.append('error', data, 'errors');
+			});
+	}
 
-                const data = {
-                    error: "Add to cart failed."
-                };
+	setCart(data) {
+		this.cart = {
+			items: [],
+			total: 0,
+		};
 
-                templateBuilder.append("error", data, "errors")
-            })
-    }
+		this.cart.total = data.total;
 
-    setCart(data)
-    {
-        this.cart = {
-            items: [],
-            total: 0
-        }
+		for (const [key, value] of Object.entries(data.items)) {
+			this.cart.items.push(value);
+		}
+	}
 
-        this.cart.total = data.total;
+	loadCart() {
+		const url = `${config.baseUrl}/cart`;
 
-        for (const [key, value] of Object.entries(data.items)) {
-            this.cart.items.push(value);
-        }
-    }
+		axios
+			.get(url)
+			.then((response) => {
+				this.setCart(response.data);
 
-    loadCart()
-    {
+				this.updateCartDisplay();
+			})
+			.catch((error) => {
+				const data = {
+					error: 'Load cart failed.',
+				};
 
-        const url = `${config.baseUrl}/cart`;
+				templateBuilder.append('error', data, 'errors');
+			});
+	}
 
-        axios.get(url)
-            .then(response => {
-                this.setCart(response.data)
+	loadCartPage() {
+		// templateBuilder.build("cart", this.cart, "main");
 
-                this.updateCartDisplay()
+		const main = document.getElementById('main');
+		main.innerHTML = '';
 
-            })
-            .catch(error => {
+		let div = document.createElement('div');
+		div.classList = 'filter-box';
+		main.appendChild(div);
 
-                const data = {
-                    error: "Load cart failed."
-                };
+		const contentDiv = document.createElement('div');
+		contentDiv.id = 'content';
+		contentDiv.classList.add('content-form');
 
-                templateBuilder.append("error", data, "errors")
-            })
+		const cartHeader = document.createElement('div');
+		cartHeader.classList.add('cart-header');
 
-    }
+		const h1 = document.createElement('h1');
+		h1.innerText = 'Cart';
+		cartHeader.appendChild(h1);
 
-    loadCartPage()
-    {
-        // templateBuilder.build("cart", this.cart, "main");
+		const button = document.createElement('button');
+		button.classList.add('btn');
+		button.classList.add('btn-danger');
+		button.innerText = 'Clear';
+		button.addEventListener('click', () => this.clearCart());
+		cartHeader.appendChild(button);
 
-        const main = document.getElementById("main")
-        main.innerHTML = "";
+		contentDiv.appendChild(cartHeader);
+		main.appendChild(contentDiv);
 
-        let div = document.createElement("div");
-        div.classList="filter-box";
-        main.appendChild(div);
+		// let parent = document.getElementById("cart-item-list");
+		this.cart.items.forEach((item) => {
+			this.buildItem(item, contentDiv);
+		});
+	}
 
-        const contentDiv = document.createElement("div")
-        contentDiv.id = "content";
-        contentDiv.classList.add("content-form");
+	buildItem(item, parent) {
+		let outerDiv = document.createElement('div');
+		outerDiv.classList.add('cart-item');
 
-        const cartHeader = document.createElement("div")
-        cartHeader.classList.add("cart-header")
+		let div = document.createElement('div');
+		outerDiv.appendChild(div);
+		let h4 = document.createElement('h4');
+		h4.innerText = item.product.name;
+		div.appendChild(h4);
 
-        const h1 = document.createElement("h1")
-        h1.innerText = "Cart";
-        cartHeader.appendChild(h1);
+		let photoDiv = document.createElement('div');
+		photoDiv.classList.add('photo');
+		let img = document.createElement('img');
+		img.src = `/images/products/${item.product.imageUrl}`;
+		img.addEventListener('click', () => {
+			showImageDetailForm(item.product.name, img.src);
+		});
+		photoDiv.appendChild(img);
+		let priceH4 = document.createElement('h4');
+		priceH4.classList.add('price');
+		priceH4.innerText = `$${item.product.price}`;
+		photoDiv.appendChild(priceH4);
+		outerDiv.appendChild(photoDiv);
 
-        const button = document.createElement("button");
-        button.classList.add("btn")
-        button.classList.add("btn-danger")
-        button.innerText = "Clear";
-        button.addEventListener("click", () => this.clearCart());
-        cartHeader.appendChild(button)
+		let descriptionDiv = document.createElement('div');
+		descriptionDiv.innerText = item.product.description;
+		outerDiv.appendChild(descriptionDiv);
 
-        contentDiv.appendChild(cartHeader)
-        main.appendChild(contentDiv);
+		let quantityDiv = document.createElement('div');
+		quantityDiv.innerText = `Quantity: ${item.quantity}`;
+		outerDiv.appendChild(quantityDiv);
 
-        // let parent = document.getElementById("cart-item-list");
-        this.cart.items.forEach(item => {
-            this.buildItem(item, contentDiv)
-        });
-    }
+		parent.appendChild(outerDiv);
+	}
 
-    buildItem(item, parent)
-    {
-        let outerDiv = document.createElement("div");
-        outerDiv.classList.add("cart-item");
+	clearCart() {
+		const url = `${config.baseUrl}/cart`;
 
-        let div = document.createElement("div");
-        outerDiv.appendChild(div);
-        let h4 = document.createElement("h4")
-        h4.innerText = item.product.name;
-        div.appendChild(h4);
+		axios
+			.delete(url)
+			.then((response) => {
+				this.cart = {
+					items: [],
+					total: 0,
+				};
 
-        let photoDiv = document.createElement("div");
-        photoDiv.classList.add("photo")
-        let img = document.createElement("img");
-        img.src = `/images/products/${item.product.imageUrl}`
-        img.addEventListener("click", () => {
-            showImageDetailForm(item.product.name, img.src)
-        })
-        photoDiv.appendChild(img)
-        let priceH4 = document.createElement("h4");
-        priceH4.classList.add("price");
-        priceH4.innerText = `$${item.product.price}`;
-        photoDiv.appendChild(priceH4);
-        outerDiv.appendChild(photoDiv);
+				this.cart.total = response.data.total;
 
-        let descriptionDiv = document.createElement("div");
-        descriptionDiv.innerText = item.product.description;
-        outerDiv.appendChild(descriptionDiv);
+				for (const [key, value] of Object.entries(response.data.items)) {
+					this.cart.items.push(value);
+				}
 
-        let quantityDiv = document.createElement("div")
-        quantityDiv.innerText = `Quantity: ${item.quantity}`;
-        outerDiv.appendChild(quantityDiv)
+				this.updateCartDisplay();
+				this.loadCartPage();
+			})
+			.catch((error) => {
+				const data = {
+					error: 'Empty cart failed.',
+				};
 
+				templateBuilder.append('error', data, 'errors');
+			});
+	}
 
-        parent.appendChild(outerDiv);
-    }
+	updateCartDisplay() {
+		try {
+			const itemCount = this.cart.items.length;
+			const cartControl = document.getElementById('cart-items');
 
-    clearCart()
-    {
-
-        const url = `${config.baseUrl}/cart`;
-
-        axios.delete(url)
-             .then(response => {
-                 this.cart = {
-                     items: [],
-                     total: 0
-                 }
-
-                 this.cart.total = response.data.total;
-
-                 for (const [key, value] of Object.entries(response.data.items)) {
-                     this.cart.items.push(value);
-                 }
-
-                 this.updateCartDisplay()
-                 this.loadCartPage()
-
-             })
-             .catch(error => {
-
-                 const data = {
-                     error: "Empty cart failed."
-                 };
-
-                 templateBuilder.append("error", data, "errors")
-             })
-    }
-
-    updateCartDisplay()
-    {
-        try {
-            const itemCount = this.cart.items.length;
-            const cartControl = document.getElementById("cart-items")
-
-            cartControl.innerText = itemCount;
-        }
-        catch (e) {
-
-        }
-    }
+			cartControl.innerText = itemCount;
+		} catch (e) {}
+	}
 }
 
-
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    cartService = new ShoppingCartService();
+	cartService = new ShoppingCartService();
 
-    if(userService.isLoggedIn())
-    {
-        cartService.loadCart();
-    }
-
+	if (userService.isLoggedIn()) {
+		cartService.loadCart();
+	}
 });
